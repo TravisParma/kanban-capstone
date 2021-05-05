@@ -1,0 +1,115 @@
+service:
+  name: personalkanban-app
+
+plugins:
+  - serverless-webpack
+  - serverless-iam-roles-per-function
+
+provider:
+  name: aws
+  runtime: nodejs12.x
+
+  stage: ${opt:stage, 'development'}
+  region: ${opt:region, 'us-west-1'}
+
+  environment:
+    MYKANBAN_TABLE: mykanban-${self:provider.stage}
+    GSI_INDEX_NAME: UserIdWithCreatedAtIndexes
+
+functions:
+
+  GetTasks:
+    handler: src/lambda/http/getTasks.handler
+    events:
+      - http:
+          method: get
+          path: tasks
+          cors: true
+    iamRoleStatementsName: ${self:service.name}-get-tasks-role-${self:provider.stage}
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:Query
+        Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.MYKANBAN_TABLE}
+      - Effect: Allow
+        Action:
+          - dynamodb:Query
+        Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.MYKANBAN_TABLE}/index/UserIdIndex
+
+  CreateTasks:
+    handler: src/lambda/http/createTask.handler
+    events:
+      - http:
+          method: post
+          path: tasks
+          cors: true
+          request:
+            schema:
+              application/json: ${file(src/validators/create-task.json)}
+    iamRoleStatementsName: ${self:service.name}-create-task-role-${self:provider.stage}
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:PutItem
+          - dynamodb:DescribeStream
+          - dynamodb:GetRecords
+          - dynamodb:GetShardIterator
+          - dynamodb:ListStreams
+        Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.MYKANBAN_TABLE}
+
+  UpdateTask:
+    handler: src/lambda/http/updateTask.handler
+    events:
+      - http:
+          method: patch
+          path: tasks/{taskId}
+          cors: true
+    iamRoleStatementsName: ${self:service.name}-update-task-role-${self:provider.stage}
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:UpdateItem
+        Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.MYKANBAN_TABLE}
+
+  DeleteTask:
+    handler: src/lambda/http/deleteTask.handler
+    events:
+      - http:
+          method: delete
+          path: tasks/{taskId}
+          cors: true
+    iamRoleStatementsName: ${self:service.name}-delete-task-role-${self:provider.stage}
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:DeleteItem
+        Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.MYKANBAN_TABLE}
+
+resources:
+  Resources:
+    TasksTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        AttributeDefinitions:
+          - AttributeName: userId
+            AttributeType: S
+          - AttributeName: taskId
+            AttributeType: S
+          - AttributeName: createdAt
+            AttributeType: S
+        KeySchema:
+          - AttributeName: userId
+            KeyType: HASH
+          - AttributeName: taskId
+            KeyType: RANGE
+        GlobalSecondaryIndexes:
+          - IndexName: ${self:provider.environment.GSI_INDEX_NAME}
+            KeySchema:
+            - AttributeName: userId
+              KeyType: HASH
+            - AttributeName: createdAt
+              KeyType: RANGE
+            Projection:
+              ProjectionType: ALL
+        BillingMode: PAY_PER_REQUEST
+        TableName: ${self:provider.environment.MYKANBAN_TABLE}

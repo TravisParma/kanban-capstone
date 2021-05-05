@@ -1,0 +1,17 @@
+{
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "title": "Create task",
+    "type": "object",
+    "properties": {
+      "name": { "$ref": "#/definitions/non-empty-string" },
+      "description": { "$ref": "#/definitions/non-empty-string" }
+    },
+    "anyOf": [{ "required": ["name"] }, { "required": ["description"] }],
+    "definitions": {
+      "non-empty-string": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "additionalProperties": false
+  }
