@@ -4,9 +4,14 @@
     "type": "object",
     "properties": {
       "name": { "$ref": "#/definitions/non-empty-string" },
-      "description": { "$ref": "#/definitions/non-empty-string" }
+      "description": { "$ref": "#/definitions/non-empty-string" },
+      "state": { "$ref": "#/definitions/non-empty-string" },
+      "column": { "$ref": "#/definitions/non-empty-string" }
     },
-    "anyOf": [{ "required": ["name"] }, { "required": ["description"] }],
+    "anyOf": [{ "required": ["name"] },
+              { "required": ["description"] }, 
+              { "required": ["state"] }, 
+              { "required": ["column"] }],
     "definitions": {
       "non-empty-string": {
         "type": "string",

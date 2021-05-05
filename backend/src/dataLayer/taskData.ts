@@ -30,6 +30,29 @@ export class TaskData {
           return tasks as TaskEntry[];
         }
 
+        async getPublictasks(state:string): Promise<TaskEntry[]>{
+
+          const params = {
+              TableName: this.tasksTable,
+              ConsistentRead: false,
+              FilterExpression: "#aa4a0 = :aa4a0",
+              ExpressionAttributeValues: {
+                ":aa4a0": state
+              },
+              ExpressionAttributeNames: {
+                "#aa4a0": "state"
+              }
+            }
+          
+            console.log("Scanning table.");
+
+            const result = await this.docClient.scan(params).promise();
+          
+            const tasks = result.Items
+  
+            return tasks as TaskEntry[];
+          }
+
         async createTask(item: TaskEntry): Promise<TaskEntry>{
 
             await this.docClient.put({
@@ -64,14 +87,16 @@ export class TaskData {
                 },
                 ExpressionAttributeNames: {
                   '#task_name': 'name',
-                  '#task_status': 'status',
+                  '#task_state': 'state',
+                  '#task_column': 'column',
                 },
                 ExpressionAttributeValues: {
                   ':name': taskEntry.name,
                   ':description': taskEntry.description,
-                  ':status': taskEntry.status,
+                  ':state': taskEntry.state,
+                  ':column': taskEntry.column
                 },
-                UpdateExpression: 'SET #task_name = :name, description = :description, #task_status = :status',
+                UpdateExpression: 'SET #task_name = :name, description = :description, #task_state = :state, #task_column = :column',
                 ReturnValues: 'ALL_NEW',
               };
             

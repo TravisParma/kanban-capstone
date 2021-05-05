@@ -7,8 +7,7 @@ import { createTask } from '../../businessLogic/taskLogic'
 export const handler: APIGatewayProxyHandler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
   console.log('Process event: ', {event: event})
 
-  //const userId = getUserId(event)
-  const userId = "abc123"
+  const userId = event.headers.userid
 
   const newTask: CreateTaskFunction = JSON.parse(event.body)
 

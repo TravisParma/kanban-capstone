@@ -1,6 +1,6 @@
 import 'source-map-support/register'
 import { APIGatewayProxyEvent, APIGatewayProxyResult, APIGatewayProxyHandler } from 'aws-lambda'
-import { getTasks } from '../../businessLogic/taskLogic'
+import { getPublictasks } from '../../businessLogic/taskLogic'
 
 
 export const handler: APIGatewayProxyHandler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
@@ -8,8 +8,8 @@ export const handler: APIGatewayProxyHandler = async (event: APIGatewayProxyEven
   console.log('Process event: ', event)
 
 try {
-  const userId = event.headers.userid
-  const tasks = await getTasks(userId);
+  const state = "public";
+  const tasks = await getPublictasks(state);
 
   return {
     statusCode: 200,
@@ -27,7 +27,7 @@ try {
       "Access-Control-Allow-Origin": "http://localhost:3000",
       'Access-Control-Allow-Credentials': true
     },
-    body: JSON.stringify({ "error": 'Error' })
+    body: JSON.stringify({ "error": 'Error - ' + e })
   }
 }
   

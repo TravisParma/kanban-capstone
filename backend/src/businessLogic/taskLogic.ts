@@ -12,6 +12,10 @@ export async function getTasks(userId: string): Promise<TaskEntry[]> {
     return taskData.getTasks(userId);
 }
 
+export async function getPublictasks(state: string): Promise<TaskEntry[]> {
+  return taskData.getPublictasks(state);
+}
+
 export async function createTask(
     createTaskFunction: CreateTaskFunction, 
     userId: string
@@ -23,9 +27,10 @@ export async function createTask(
       taskId: itemId,
       userId: userId,
       createdAt: new Date().getTime().toString(),
-      status: "backlog",
+      column: "backlog",
       name: createTaskFunction.name,
-      description: createTaskFunction.description
+      description: createTaskFunction.description,
+      state: createTaskFunction.state
     });
   }
 
@@ -44,7 +49,8 @@ export async function updateTask(
       {
         name: UpdateTaskEntry.name,
         description: UpdateTaskEntry.description,
-        status: UpdateTaskEntry.status
+        state: UpdateTaskEntry.state,
+        column: UpdateTaskEntry.column
       })
   
 }

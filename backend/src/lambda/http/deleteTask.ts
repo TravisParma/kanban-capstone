@@ -8,8 +8,7 @@ export const handler: APIGatewayProxyHandler = async (event: APIGatewayProxyEven
   console.log('Process event: ', event)
 
   const taskId = event.pathParameters.taskId
-  //const userId = getUserId(event)
-  const userId = "abc123"
+  const userId = event.headers.userid
 
   await deleteTask(taskId, userId);
 

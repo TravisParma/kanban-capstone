@@ -4,5 +4,6 @@ export interface TaskEntry {
     createdAt: string
     name: string
     description: string
-    status: string
+    state: string
+    column: string
   }

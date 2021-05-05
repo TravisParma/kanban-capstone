@@ -17,7 +17,7 @@ provider:
     GSI_INDEX_NAME: UserIdWithCreatedAtIndexes
 
 functions:
-
+# GET User Tasks
   GetTasks:
     handler: src/lambda/http/getTasks.handler
     events:
@@ -36,6 +36,25 @@ functions:
           - dynamodb:Query
         Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.MYKANBAN_TABLE}/index/UserIdIndex
 
+# GET Public Tasks
+  GetPublicTasks:
+    handler: src/lambda/http/getPublictasks.handler
+    events:
+      - http:
+          method: get
+          path: public/tasks
+          cors: true
+    iamRoleStatementsName: ${self:service.name}-get-public-tasks-role-${self:provider.stage}
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:Scan
+        Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.MYKANBAN_TABLE}
+      - Effect: Allow
+        Action:
+          - dynamodb:Scan
+        Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.MYKANBAN_TABLE}/index/UserIdIndex
+  
   CreateTasks:
     handler: src/lambda/http/createTask.handler
     events:
