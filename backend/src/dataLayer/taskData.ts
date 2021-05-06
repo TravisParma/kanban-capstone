@@ -34,8 +34,8 @@ export class TaskData {
 
           const params = {
               TableName: this.tasksTable,
-              ConsistentRead: false,
-              FilterExpression: "#aa4a0 = :aa4a0",
+              IndexName: "StateIndexes",
+              KeyConditionExpression: "#aa4a0 = :aa4a0",
               ExpressionAttributeValues: {
                 ":aa4a0": state
               },
@@ -46,7 +46,7 @@ export class TaskData {
           
             console.log("Scanning table.");
 
-            const result = await this.docClient.scan(params).promise();
+            const result = await this.docClient.query(params).promise();
           
             const tasks = result.Items
   

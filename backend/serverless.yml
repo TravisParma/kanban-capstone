@@ -15,6 +15,10 @@ provider:
   environment:
     MYKANBAN_TABLE: mykanban-${self:provider.stage}
     GSI_INDEX_NAME: UserIdWithCreatedAtIndexes
+    GSI_STATE_INDEX_NAME: StateIndexes
+    MYKANBANUSERS_TABLE: mykanbanusers-${self:provider.stage}
+    GSI_USERSACTIVE_INDEX_NAME: ActiveIndexes
+
 
 functions:
 # GET User Tasks
@@ -48,12 +52,12 @@ functions:
     iamRoleStatements:
       - Effect: Allow
         Action:
-          - dynamodb:Scan
+          - dynamodb:Query
         Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.MYKANBAN_TABLE}
       - Effect: Allow
         Action:
-          - dynamodb:Scan
-        Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.MYKANBAN_TABLE}/index/UserIdIndex
+          - dynamodb:Query
+        Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.MYKANBAN_TABLE}/index/StateIndexes
   
   CreateTasks:
     handler: src/lambda/http/createTask.handler
@@ -70,10 +74,6 @@ functions:
       - Effect: Allow
         Action:
           - dynamodb:PutItem
-          - dynamodb:DescribeStream
-          - dynamodb:GetRecords
-          - dynamodb:GetShardIterator
-          - dynamodb:ListStreams
         Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.MYKANBAN_TABLE}
 
   UpdateTask:
@@ -104,6 +104,44 @@ functions:
           - dynamodb:DeleteItem
         Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.MYKANBAN_TABLE}
 
+# USER FUNCTIONS
+
+# GET Users
+  GetUsers:
+    handler: src/lambda/http/getUsers.handler
+    events:
+      - http:
+          method: get
+          path: users
+          cors: true
+    iamRoleStatementsName: ${self:service.name}-get-users-role-${self:provider.stage}
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:Query
+        Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.MYKANBANUSERS_TABLE}
+      - Effect: Allow
+        Action:
+          - dynamodb:Query
+        Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.MYKANBANUSERS_TABLE}/index/ActiveIndexes
+  # Create User
+  CreateUser:
+    handler: src/lambda/http/createUser.handler
+    events:
+      - http:
+          method: post
+          path: users
+          cors: true
+          request:
+            schema:
+              application/json: ${file(src/validators/create-user.json)}
+    iamRoleStatementsName: ${self:service.name}-create-user-role-${self:provider.stage}
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:PutItem
+        Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.MYKANBANUSERS_TABLE}
+
 resources:
   Resources:
     TasksTable:
@@ -115,6 +153,8 @@ resources:
           - AttributeName: taskId
             AttributeType: S
           - AttributeName: createdAt
+            AttributeType: S
+          - AttributeName: state
             AttributeType: S
         KeySchema:
           - AttributeName: userId
@@ -130,5 +170,31 @@ resources:
               KeyType: RANGE
             Projection:
               ProjectionType: ALL
+          - IndexName: ${self:provider.environment.GSI_STATE_INDEX_NAME}
+            KeySchema:
+            - AttributeName: state
+              KeyType: HASH
+            Projection:
+              ProjectionType: ALL
         BillingMode: PAY_PER_REQUEST
         TableName: ${self:provider.environment.MYKANBAN_TABLE}
+    UsersTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        AttributeDefinitions:
+          - AttributeName: id
+            AttributeType: S
+          - AttributeName: active
+            AttributeType: S
+        KeySchema:
+          - AttributeName: id
+            KeyType: HASH
+        GlobalSecondaryIndexes:
+          - IndexName: ${self:provider.environment.GSI_USERSACTIVE_INDEX_NAME}
+            KeySchema:
+            - AttributeName: active
+              KeyType: HASH
+            Projection:
+              ProjectionType: ALL
+        BillingMode: PAY_PER_REQUEST
+        TableName: ${self:provider.environment.MYKANBANUSERS_TABLE}

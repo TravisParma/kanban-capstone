@@ -1,0 +1,22 @@
+{
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "title": "Create user",
+    "type": "object",
+    "properties": {
+      "userName": { "$ref": "#/definitions/non-empty-string" },
+      "wipLimit": { "$ref": "#/definitions/non-empty-number" }
+    },
+    "anyOf": [{ "required": ["userName"] },
+              { "required": ["wipLimit"] }],
+    "definitions": {
+      "non-empty-string": {
+        "type": "string",
+        "minLength": 1
+      },
+      "non-empty-number": {
+        "type": "number",
+        "minLength": 1
+      }
+    },
+    "additionalProperties": false
+  }
