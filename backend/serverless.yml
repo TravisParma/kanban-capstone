@@ -141,6 +141,34 @@ functions:
         Action:
           - dynamodb:PutItem
         Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.MYKANBANUSERS_TABLE}
+   # Update User
+  UpdateUser:
+    handler: src/lambda/http/updateUser.handler
+    events:
+      - http:
+          method: patch
+          path: users/{userId}
+          cors: true
+    iamRoleStatementsName: ${self:service.name}-update-user-role-${self:provider.stage}
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:UpdateItem
+        Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.MYKANBANUSERS_TABLE}
+   # Delete User
+  DeleteUser:
+    handler: src/lambda/http/deleteUser.handler
+    events:
+      - http:
+          method: delete
+          path: users/{userId}
+          cors: true
+    iamRoleStatementsName: ${self:service.name}-delete-user-role-${self:provider.stage}
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:DeleteItem
+        Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.MYKANBANUSERS_TABLE}
 
 resources:
   Resources:

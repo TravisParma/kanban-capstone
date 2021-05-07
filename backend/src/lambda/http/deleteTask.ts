@@ -1,5 +1,4 @@
 import 'source-map-support/register'
-//import { getUserId } from '../utils'
 import { deleteTask } from '../../businessLogic/taskLogic'
 import { APIGatewayProxyEvent, APIGatewayProxyResult, APIGatewayProxyHandler } from 'aws-lambda'
 
@@ -15,6 +14,6 @@ export const handler: APIGatewayProxyHandler = async (event: APIGatewayProxyEven
   return {
     statusCode: 204,
     headers: {'Access-Control-Allow-Origin': '*'},
-    body: ''
+    body: 'delete success'
     }
   }

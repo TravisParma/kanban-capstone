@@ -1,6 +1,5 @@
 import 'source-map-support/register'
 import { APIGatewayProxyEvent, APIGatewayProxyHandler, APIGatewayProxyResult } from 'aws-lambda'
-//import { getUserId } from '../utils'
 import { UpdateTaskEntry } from '../../models/UpdateTaskEntry'
 import { updateTask } from '../../businessLogic/taskLogic'
 

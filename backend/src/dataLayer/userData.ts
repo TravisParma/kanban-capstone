@@ -1,5 +1,6 @@
 import * as AWS from 'aws-sdk';
 import { DocumentClient } from 'aws-sdk/clients/dynamodb';
+import { UpdateUser } from '../models/UpdateUser';
 import { Users } from '../models/Users';
 
 export class UserData {
@@ -36,5 +37,44 @@ export class UserData {
             }).promise()
 
             return user;
+        }
+
+        async updateUser(userId: string, userInfo: UpdateUser){
+
+            const params = {
+                TableName: this.usersTable,
+                Key: {
+                  userId: userId,
+                },
+                ExpressionAttributeNames: {
+                  'userName': 'userName',
+                  'wipLimit': 'wipLimit',
+                  'active': 'active',
+                },
+                ExpressionAttributeValues: {
+                  ':userName': userInfo.userName,
+                  ':wipLimit': userInfo.wipLimit,
+                  ':active': userInfo.active,
+                },
+                UpdateExpression: 'SET userName = :userName, wipLimit = :wipLimit, active = :active',
+                ReturnValues: 'ALL_NEW',
+              };
+
+              const result = await this.docClient.update(params).promise();
+
+              return result.Attributes as Users;
+        }
+
+        async deleteUser(userId: string){
+
+            const params = {
+                TableName: this.usersTable,
+                Key: {
+                    userId: userId
+                  },
+                  ReturnValues: 'NONE',
+            };
+
+            await this.docClient.delete(params).promise();
         }
     }
