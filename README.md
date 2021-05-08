@@ -6,15 +6,15 @@ Serverless App created for the Cloud Developer Udacity nanprogram capstone
 
 This is the backend of an application that uses Kanban principles for tasks with the added feature of creating and joining a public task so effort cna be shared.
 
-# Serverless architecture used
+# Serverless Architecture
 * APIs for Users and Tasks
 * Individual permissions for each call
 * Monitoring setup for each call using AWS X-Ray
 * DynamoDB for User information, dsigned in a way that it could be replaced by a outsid service
 * DynamoDB for Task information
 
-
-# Fields in USERS dynamodb database
+# User Details
+## Fields in USERS dynamodb database
 
 * `userId` (string) - a generated unique id
 * `userName` (string) - Custom name for a user
@@ -22,19 +22,21 @@ This is the backend of an application that uses Kanban principles for tasks with
 * `active` (string) - Either 'y' or 'n' identifying if user is active
 * `createdAt` (string) - date and time when an item was created
 
-# User Functions
-* `getUsers` - 
-* `createUser` - 
-* `updateUser` - 
-* `deleteUser` - 
+## User Functions
+* `getUsers` - Returns all the users by the provided 'active' is either 'y' or 'n'.
+* `createUser` - Creates a user in the Users DB. Utilizes model `Users.ts` file
+* `updateUser` - Updates the user in the Users DB.
+* `deleteUser` - Deletes the user in the Users DB.
+* `getUser` - Returns the details of a single user from the userid
 
-# User APIs
-* `GetUsers: GET /users` - 
-* `CreateUser: POST /users` - 
-* `UpdateUser: PATCH /users{userid}` - 
-* `DeleteUser: DELETE /users{userId}` -
+## User APIs
+* `GetUsers: GET /users` - Returns all the users by the provided 'active' header, either 'y' or 'n'.
+* `CreateUser: POST /users` - Creates a user and validates username is not duplicated.
+* `UpdateUser: PATCH /users{userid}` - Updates the user and validates the userid exisits int the Users DB.
+* `DeleteUser: DELETE /users{userId}` - Deletes the user in the Users DB using the userId.
 
-# Fields in TASKS dynamodb database
+# Tasks Details
+## Fields in TASKS dynamodb database
 
 * `taskId` (string) - a unique id
 * `name` (string) - short name for a task
@@ -44,33 +46,18 @@ This is the backend of an application that uses Kanban principles for tasks with
 * `column` (string) - tells which column the task is in (backlog, in progress, completed)
 * `userId` (string) - user that created the task
 
-# Task APIs
-* `GetTasks: GET /tasks` - 
-* `CreateTask: POST /tasks` - 
-* `UpdateTask: PATCH /tasks{taskid}` - 
-* `DeleteTask: DELETE /tasks{taskid}` -
+## Task APIs
+* `GetTasks: GET /tasks` - Get all tasks for user
+* `CreateTask: POST /tasks` - Create a new task
+* `UpdateTask: PATCH /tasks{taskid}` - Update a task
+* `DeleteTask: DELETE /tasks{taskid}` - Delete a task
+* `GetPublicTasks: GET /public/tasks` - Get all Public tasks
 
-# Task Functions
+## Task Functions
 
 * `getTasks` - Returns all Tasks for a current user. A user id can be extracted from userid header
-* `createTask` - Creates a new task using the user id and returns the new task details. Utilizes model `CreateTaskFunction.ts` file
-* `updateTask` - Updates a single task
-* `deleteTask` - Deletes a single task
-* `getPublictasks` - Returns all Tasks that have a 'state' of public
 
-JSON format of the request:
-
-```json
-{
-  "column": "backlog",
-  "name": "Workout Wednesday",
-  "description": "Lets workout!",
-  "state": "public"
-}
-```
-
-JSON format of the response:
-
+JSON Return:
 ```json
 {
     "item": {
@@ -85,44 +72,65 @@ JSON format of the response:
 }
 ```
 
-* `UpdateTodo` - should update a TODO item created by a current user. A shape of data send by a client application to this function can be found in the `UpdateTodoRequest.ts` file
+* `createTask` - Creates a new task using the user id and returns the new task details. The 'column' field is automatically set to 'backlog' on creation. Utilizes model `CreateTaskFunction.ts` file
 
-It receives an object that contains three fields that can be updated in a TODO item:
-
+JSON Input:
 ```json
 {
-  "name": "Buy bread",
-  "dueDate": "2019-07-29T20:01:45.424Z",
-  "done": true
+  "name": "Workout Wednesday",
+  "description": "Lets workout!",
+  "state": "public"
 }
 ```
 
-The id of an item that should be updated is passed as a URL parameter.
-
-It should return an empty body.
-
-* `DeleteTodo` - should delete a TODO item created by a current user. Expects an id of a TODO item to remove.
-
-It should return an empty body.
-
-* `GenerateUploadUrl` - returns a pre-signed URL that can be used to upload an attachment file for a TODO item.
-
-It should return a JSON object that looks like this:
-
+JSON Return:
 ```json
 {
-  "uploadUrl": "https://s3-bucket-name.s3.eu-west-2.amazonaws.com/image.png"
+    "item": {
+      "taskId": "1234",
+      "userId": "user1234",
+      "createdAt": "1620238676541",
+      "column": "backlog",
+      "name": "Workout Wednesday",
+      "description": "Lets workout!",
+      "state": "public"
+    }
 }
 ```
 
-All functions are already connected to appropriate events from API Gateway.
 
-An id of a user can be extracted from a JWT token passed by a client.
+* `updateTask` - Updates a single task of provided taskId
+* `deleteTask` - Deletes a single task of provided taskId
+* `getPublictasks` - Returns all Tasks that have a 'state' of public
 
-You also need to add any necessary resources to the `resources` section of the `serverless.yml` file such as DynamoDB table and S3 bucket.
+JSON Return:
+```json
+{
+    "items": [
+        {
+            "column": "backlog",
+            "taskId": "874dbf9d-7684-412c-9e0c-f350c203905d",
+            "userId": "abc123",
+            "createdAt": "1620087821184",
+            "description": "test task2",
+            "name": "test123",
+            "state": "public"
+        },
+        {
+            "column": "backlog",
+            "taskId": "711cc67a-7175-400e-b8f1-e2ce907f26b0",
+            "userId": "abc123",
+            "createdAt": "1620179089218",
+            "description": "this is a test",
+            "name": "test public task4",
+            "state": "public"
+        }
+    ]
+}
+```
 
 
-# Frontend
+# Fntend
 
 The `client` folder contains a web application that can use the API that should be developed in the project.
 
