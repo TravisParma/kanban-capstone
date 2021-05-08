@@ -75,6 +75,10 @@ functions:
         Action:
           - dynamodb:PutItem
         Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.MYKANBAN_TABLE}
+      - Effect: Allow
+        Action:
+          - dynamodb:Query
+        Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.MYKANBANUSERS_TABLE}
 
   UpdateTask:
     handler: src/lambda/http/updateTask.handler

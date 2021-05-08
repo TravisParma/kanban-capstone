@@ -45,3 +45,7 @@ export async function updateUser(
 export async function deleteUser(userId: string) {
   return await userData.deleteUser(userId);
 }
+
+export async function getUser(userId: string) {
+  return await userData.getUser(userId);
+}

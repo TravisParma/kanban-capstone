@@ -6,7 +6,35 @@ Serverless App created for the Cloud Developer Udacity nanprogram capstone
 
 This is the backend of an application that uses Kanban principles for tasks with the added feature of creating and joining a public task so effort cna be shared.
 
-# Fields in dynamodb database
+# Serverless architecture used
+* APIs for Users and Tasks
+* Individual permissions for each call
+* Monitoring setup for each call using AWS X-Ray
+* DynamoDB for User information, dsigned in a way that it could be replaced by a outsid service
+* DynamoDB for Task information
+
+
+# Fields in USERS dynamodb database
+
+* `userId` (string) - a generated unique id
+* `userName` (string) - Custom name for a user
+* `wipLimit` (number) - Limit of tasks a user can have 'in progress'
+* `active` (string) - Either 'y' or 'n' identifying if user is active
+* `createdAt` (string) - date and time when an item was created
+
+# User Functions
+* `getUsers` - 
+* `createUser` - 
+* `updateUser` - 
+* `deleteUser` - 
+
+# User APIs
+* `GetUsers: GET /users` - 
+* `CreateUser: POST /users` - 
+* `UpdateUser: PATCH /users{userid}` - 
+* `DeleteUser: DELETE /users{userId}` -
+
+# Fields in TASKS dynamodb database
 
 * `taskId` (string) - a unique id
 * `name` (string) - short name for a task
@@ -16,12 +44,19 @@ This is the backend of an application that uses Kanban principles for tasks with
 * `column` (string) - tells which column the task is in (backlog, in progress, completed)
 * `userId` (string) - user that created the task
 
+# Task APIs
+* `GetTasks: GET /tasks` - 
+* `CreateTask: POST /tasks` - 
+* `UpdateTask: PATCH /tasks{taskid}` - 
+* `DeleteTask: DELETE /tasks{taskid}` -
 
-# Functions
+# Task Functions
 
-* `GetTasks` - should return all Tasks for a current user. A user id can be extracted from userid header
-
-* `CreateTodo` - should create a new Task for a current user. A model of data send by a client application to found in the `CreateTaskFunction.ts` file
+* `getTasks` - Returns all Tasks for a current user. A user id can be extracted from userid header
+* `createTask` - Creates a new task using the user id and returns the new task details. Utilizes model `CreateTaskFunction.ts` file
+* `updateTask` - Updates a single task
+* `deleteTask` - Deletes a single task
+* `getPublictasks` - Returns all Tasks that have a 'state' of public
 
 JSON format of the request:
 

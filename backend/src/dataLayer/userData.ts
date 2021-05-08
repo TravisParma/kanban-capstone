@@ -44,19 +44,19 @@ export class UserData {
             const params = {
                 TableName: this.usersTable,
                 Key: {
-                  userId: userId,
+                  id: userId,
                 },
+                ConditionExpression: "attribute_exists(id)",
                 ExpressionAttributeNames: {
-                  'userName': 'userName',
-                  'wipLimit': 'wipLimit',
-                  'active': 'active',
+                  '#user_userName': 'userName',
+                  '#user_active': 'active',
                 },
                 ExpressionAttributeValues: {
                   ':userName': userInfo.userName,
                   ':wipLimit': userInfo.wipLimit,
                   ':active': userInfo.active,
                 },
-                UpdateExpression: 'SET userName = :userName, wipLimit = :wipLimit, active = :active',
+                UpdateExpression: 'SET #user_userName = :userName, wipLimit = :wipLimit, #user_active = :active',
                 ReturnValues: 'ALL_NEW',
               };
 
@@ -70,11 +70,29 @@ export class UserData {
             const params = {
                 TableName: this.usersTable,
                 Key: {
-                    userId: userId
+                    id: userId
                   },
                   ReturnValues: 'NONE',
             };
 
             await this.docClient.delete(params).promise();
+        }
+
+        async getUser(userId: string){
+
+            const params = {
+                TableName: this.usersTable,
+                KeyConditionExpression: "#user_id = :userid",
+                ExpressionAttributeValues: {
+                    ":userid": userId
+                },
+                ExpressionAttributeNames: {
+                    "#user_id": "id"
+                }
+            };
+            
+            const result = await this.docClient.query(params).promise();
+
+            return result
         }
     }

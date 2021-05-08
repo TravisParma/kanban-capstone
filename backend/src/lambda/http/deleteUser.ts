@@ -5,7 +5,7 @@ import { deleteUser } from '../../businessLogic/userLogic'
 export const handler: APIGatewayProxyHandler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
     console.log('Process event: ', event)
 
-    const userId = event.headers.userId
+    const userId = event.pathParameters.userId
 
     await deleteUser(userId);
 
