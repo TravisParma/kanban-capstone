@@ -233,5 +233,9 @@ JSON Input:
 
 # API Gateway Screenshot
 
+![Alt text](screenshots/APIGateway.png?raw=true "Image 1")
+
 # DynamoDb Screenshot
+
+![Alt text](screenshots/DynamoDB.png?raw=true "Image 1")
 
