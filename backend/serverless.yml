@@ -5,16 +5,17 @@ plugins:
   - serverless-webpack
   - serverless-iam-roles-per-function
 
+
 provider:
   name: aws
   runtime: nodejs12.x
 
-tracing:
-  apiGateway: true
-  lambda: true
-
   stage: ${opt:stage, 'development'}
   region: ${opt:region, 'us-west-1'}
+  
+  tracing:
+    apiGateway: true
+    lambda: true
 
   environment:
     MYKANBAN_TABLE: mykanban-${self:provider.stage}
@@ -209,7 +210,7 @@ functions:
           - "xray:PutTelemetryRecords"
         Resource:
           - "*"
-          
+
    # Update User
   UpdateUser:
     handler: src/lambda/http/updateUser.handler

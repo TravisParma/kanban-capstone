@@ -219,3 +219,19 @@ JSON Input:
 }
 ```
 
+# Postman Tests and Requests
+
+## Tests Collection
+
+## Requests Collection
+
+# X-Ray Screenshots
+
+![X-Ray Screenshot 1](screenshots/AWS X-Ray1.png?raw=true "Image 1")
+
+![X-Ray Screenshot 1](screenshots/AWS X-Ray2.png?raw=true "Image 2")
+
+# API Gateway Screenshot
+
+# DynamoDb Screenshot
+
