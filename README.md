@@ -227,9 +227,9 @@ JSON Input:
 
 # X-Ray Screenshots
 
-![X-Ray Screenshot 1](screenshots/AWS X-Ray1.png?raw=true "Image 1")
+![Alt text](screenshots/AWSX-Ray1.png?raw=true "Image 1")
 
-![X-Ray Screenshot 1](screenshots/AWS X-Ray2.png?raw=true "Image 2")
+![Alt text](screenshots/AWSX-Ray2.png?raw=true "Image 2")
 
 # API Gateway Screenshot
 
