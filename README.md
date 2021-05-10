@@ -13,6 +13,7 @@ This is the backend of an application that uses Kanban principles for tasks with
 * Monitoring setup for each call using AWS X-Ray
 * DynamoDB for User information, dsigned in a way that it could be replaced by a outsid service
 * DynamoDB for Task information
+* Two Postman collection for the API calls and Testing
 
 # User Details
 ## Fields in USERS dynamodb database
