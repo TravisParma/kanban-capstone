@@ -9,6 +9,7 @@ This is the backend of an application that uses Kanban principles for tasks with
 # Serverless Architecture
 * APIs for Users and Tasks
 * Individual permissions for each call
+* Logic and Data layers for easy integration
 * Monitoring setup for each call using AWS X-Ray
 * DynamoDB for User information, dsigned in a way that it could be replaced by a outsid service
 * DynamoDB for Task information
@@ -223,7 +224,15 @@ JSON Input:
 
 ## Tests Collection
 
+User the collection 'Kanban Tests.postman_collection.json'
+
+The collection has steps that will take you thorugh creating a user, updating its WIP Limit, creating a private task, looking at Public tasks, and joining a public task.
+
 ## Requests Collection
+
+User the collection 'Kanban API Collection.postman_collection.json'
+
+The collection has calls for the APIs in the app
 
 # X-Ray Screenshots
 
