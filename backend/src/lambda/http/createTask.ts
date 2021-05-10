@@ -14,7 +14,7 @@ export const handler: APIGatewayProxyHandler = async (event: APIGatewayProxyEven
       statusCode: 400,
       headers: {
         'Access-Control-Allow-Origin': '*'
-      }, body: "User dosn't exist"
+      }, body: "User does not exist"
     }
   }
 

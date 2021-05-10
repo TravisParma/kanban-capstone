@@ -9,6 +9,10 @@ provider:
   name: aws
   runtime: nodejs12.x
 
+tracing:
+  apiGateway: true
+  lambda: true
+
   stage: ${opt:stage, 'development'}
   region: ${opt:region, 'us-west-1'}
 
@@ -18,6 +22,7 @@ provider:
     GSI_STATE_INDEX_NAME: StateIndexes
     MYKANBANUSERS_TABLE: mykanbanusers-${self:provider.stage}
     GSI_USERSACTIVE_INDEX_NAME: ActiveIndexes
+    GSI_TASK_INDEX_NAME: TaskIndex
 
 
 functions:
@@ -39,6 +44,12 @@ functions:
         Action:
           - dynamodb:Query
         Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.MYKANBAN_TABLE}/index/UserIdIndex
+      - Effect: "Allow"
+        Action:
+          - "xray:PutTraceSegments"
+          - "xray:PutTelemetryRecords"
+        Resource:
+          - "*"
 
 # GET Public Tasks
   GetPublicTasks:
@@ -58,7 +69,42 @@ functions:
         Action:
           - dynamodb:Query
         Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.MYKANBAN_TABLE}/index/StateIndexes
+      - Effect: "Allow"
+        Action:
+          - "xray:PutTraceSegments"
+          - "xray:PutTelemetryRecords"
+        Resource:
+          - "*"
   
+  # Join a Public Task
+  JoinPublicTask:
+    handler: src/lambda/http/joinPublictask.handler
+    events:
+      - http:
+          method: post
+          path: public/tasks/{taskId}
+          cors: true
+    iamRoleStatementsName: ${self:service.name}-join-public-task-role-${self:provider.stage}
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:Query
+        Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.MYKANBAN_TABLE}/index/TaskIndex
+      - Effect: Allow
+        Action:
+          - dynamodb:PutItem
+        Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.MYKANBAN_TABLE}
+      - Effect: Allow
+        Action:
+          - dynamodb:Query
+        Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.MYKANBANUSERS_TABLE}
+      - Effect: "Allow"
+        Action:
+          - "xray:PutTraceSegments"
+          - "xray:PutTelemetryRecords"
+        Resource:
+          - "*"
+
   CreateTasks:
     handler: src/lambda/http/createTask.handler
     events:
@@ -79,6 +125,12 @@ functions:
         Action:
           - dynamodb:Query
         Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.MYKANBANUSERS_TABLE}
+      - Effect: "Allow"
+        Action:
+          - "xray:PutTraceSegments"
+          - "xray:PutTelemetryRecords"
+        Resource:
+          - "*"
 
   UpdateTask:
     handler: src/lambda/http/updateTask.handler
@@ -128,6 +180,12 @@ functions:
         Action:
           - dynamodb:Query
         Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.MYKANBANUSERS_TABLE}/index/ActiveIndexes
+      - Effect: "Allow"
+        Action:
+          - "xray:PutTraceSegments"
+          - "xray:PutTelemetryRecords"
+        Resource:
+          - "*"
   # Create User
   CreateUser:
     handler: src/lambda/http/createUser.handler
@@ -145,6 +203,13 @@ functions:
         Action:
           - dynamodb:PutItem
         Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.MYKANBANUSERS_TABLE}
+      - Effect: "Allow"
+        Action:
+          - "xray:PutTraceSegments"
+          - "xray:PutTelemetryRecords"
+        Resource:
+          - "*"
+          
    # Update User
   UpdateUser:
     handler: src/lambda/http/updateUser.handler
@@ -208,8 +273,15 @@ resources:
               KeyType: HASH
             Projection:
               ProjectionType: ALL
+          - IndexName: ${self:provider.environment.GSI_TASK_INDEX_NAME}
+            KeySchema:
+            - AttributeName: taskId
+              KeyType: HASH
+            Projection:
+              ProjectionType: ALL
         BillingMode: PAY_PER_REQUEST
         TableName: ${self:provider.environment.MYKANBAN_TABLE}
+
     UsersTable:
       Type: AWS::DynamoDB::Table
       Properties:

@@ -8,6 +8,7 @@ export const handler: APIGatewayProxyHandler = async (event: APIGatewayProxyEven
 
   const taskId = event.pathParameters.taskId
   const userId = event.headers.userid
+
   const updatedTask: UpdateTaskEntry = JSON.parse(event.body)
 
   await updateTask(taskId, userId, updatedTask)

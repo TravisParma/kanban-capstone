@@ -54,3 +54,7 @@ export async function updateTask(
       })
   
 }
+
+export async function getTask(taskId: string) {
+  return await taskData.getTask(taskId);
+}

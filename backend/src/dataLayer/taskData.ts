@@ -1,14 +1,36 @@
 import * as AWS from 'aws-sdk';
+import * as AWSXRay from 'aws-xray-sdk';
 import { DocumentClient } from 'aws-sdk/clients/dynamodb';
 import { TaskEntry } from '../models/TaskEntry';
 import { UpdateTaskEntry } from '../models/UpdateTaskEntry';
 
+const XAWS = AWSXRay.captureAWS(AWS)
+
 export class TaskData {
 
     constructor(
-        private readonly docClient: DocumentClient = new AWS.DynamoDB.DocumentClient(),
-        private readonly tasksTable = process.env.MYKANBAN_TABLE,
+      private readonly docClient: DocumentClient = new XAWS.DynamoDB.DocumentClient(),
+      private readonly tasksTable = process.env.MYKANBAN_TABLE,
         ) {}
+
+        async getTask(taskId: string){
+
+          const params = {
+              TableName: this.tasksTable,
+              IndexName: "TaskIndex",
+              KeyConditionExpression: "#task_id = :taskid",
+              ExpressionAttributeValues: {
+                  ":taskid": taskId
+              },
+              ExpressionAttributeNames: {
+                  "#task_id": "taskId"
+              }
+          };
+          
+          const result = await this.docClient.query(params).promise();
+
+          return result
+      }
 
         async getTasks(userId: string): Promise<TaskEntry[]>{
 
@@ -104,4 +126,5 @@ export class TaskData {
 
               return result.Attributes as TaskEntry;
         }
+
 }
